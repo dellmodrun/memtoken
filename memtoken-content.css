@@ -111,6 +111,15 @@
   font-style: italic;
 }
 
+.official-market-row td { vertical-align: middle; }
+.official-market-dot { display:block; width:6px; height:6px; background:var(--up); box-shadow:0 0 10px rgba(77,255,60,.45); }
+.official-market-name,.official-market-link { color:var(--ink); text-decoration:none; }
+.official-market-name small { color:var(--ink-4); font:9px/1 var(--font-mono); }
+.official-market-link { color:var(--up); }
+.official-market-value { color:var(--ink) !important; font-weight:600 !important; }
+.official-market-up { color:var(--up) !important; }
+.official-market-down { color:#ff7d7d !important; }
+
 @media (max-width: 620px) {
   .ca-banner-address {
     gap: 4px;

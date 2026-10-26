@@ -4,6 +4,7 @@
   const OFFICIAL_CA = 'HZqbPkg931FqWcVoYuxUD8U9CL4d9v2WybiuwUTMpump';
   let config = null;
   let checked = false;
+  let officialMarket = null;
 
   async function loadConfig() {
     try {
@@ -23,6 +24,26 @@
 
   function hasPrograms() {
     return Boolean(config?.registry_program && config?.bond_program && config?.relay_signer);
+  }
+
+  async function loadOfficialMarket() {
+    if (OFFICIAL_CA === 'TBA') return;
+    try {
+      const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${OFFICIAL_CA}`);
+      if (!response.ok) throw new Error(`status ${response.status}`);
+      const data = await response.json();
+      officialMarket = (data.pairs || []).find((pair) => pair.chainId === 'solana' && pair.dexId === 'pumpfun') || data.pairs?.[0] || null;
+    } catch (error) {
+      console.warn('[memtoken] official market data unavailable', error);
+    } finally {
+      enhance();
+    }
+  }
+
+  function usd(value) {
+    const number = Number(value);
+    if (!Number.isFinite(number)) return '—';
+    return number < 1000 ? `$${number.toFixed(2)}` : `$${Math.round(number).toLocaleString('en-US')}`;
   }
 
   function currentPath() {
@@ -209,8 +230,53 @@
     }
   }
 
-  function enhance() { enhanceBanner(); enhanceLaunch(); enhanceSidebar(); enhanceEmptyStates(); }
+  function enhanceOfficialMarket() {
+    if (currentPath() !== '/' || !officialMarket) return;
+    const content = document.querySelector('main.content');
+    const table = content?.querySelector('.scrollx table.tbl');
+    const body = table?.querySelector('tbody');
+    if (!content || !body) return;
+
+    const existingAppRow = [...body.querySelectorAll('tr:not(.official-market-row):not(.empty-state-row)')]
+      .some((row) => row.textContent.includes('MEMTOKEN') || row.querySelector(`a[href*="${OFFICIAL_CA}"]`));
+    if (existingAppRow) {
+      body.querySelector('.official-market-row')?.remove();
+      return;
+    }
+
+    body.querySelector('.empty-state-row')?.remove();
+    let row = body.querySelector('.official-market-row');
+    if (!row) {
+      row = document.createElement('tr');
+      row.className = 'official-market-row';
+      body.appendChild(row);
+    }
+    const change = Number(officialMarket.priceChange?.h24);
+    const changeText = Number.isFinite(change) ? `${change >= 0 ? '+' : ''}${change.toFixed(2)}% 24h` : 'live market';
+    row.innerHTML = `
+      <td><span class="official-market-dot"></span></td>
+      <td><a class="official-market-name" href="https://pump.fun/coin/${OFFICIAL_CA}" target="_blank" rel="noreferrer">Memtoken Coin <small>[MEMTOKEN]</small></a></td>
+      <td class="official-market-value">${usd(officialMarket.marketCap ?? officialMarket.fdv)}</td>
+      <td class="${change >= 0 ? 'official-market-up' : 'official-market-down'}">${changeText}</td>
+      <td>official CA</td>
+      <td>${hasPrograms() ? 'published' : 'pending'}</td>
+      <td><a class="official-market-link" href="${officialMarket.url || `https://dexscreener.com/solana/${OFFICIAL_CA}`}" target="_blank" rel="noreferrer">live on Pump.fun ↗</a></td>`;
+
+    const count = content.querySelector('h2.t-heading + .t-mono .slot');
+    if (count) count.textContent = '1';
+    const statCells = content.querySelectorAll('.strip .cell');
+    if (statCells[0]?.querySelector('.t-label')?.textContent === 'COINS') statCells[0].querySelector('.t-value').textContent = '1';
+    if (statCells[1]?.querySelector('.t-label')?.textContent === 'LIVE CURVES') statCells[1].querySelector('.t-value').textContent = '1';
+
+    const officialCard = content.querySelector('.board-top > div:last-child');
+    const slots = officialCard?.querySelectorAll('.slot');
+    if (slots?.[1]) slots[1].textContent = usd(officialMarket.marketCap ?? officialMarket.fdv);
+    const details = officialCard?.querySelector('.t-mono.ink-3');
+    if (details) details.textContent = `price ${usd(officialMarket.priceUsd)}   volume 24h ${usd(officialMarket.volume?.h24)}   market live`;
+  }
+
+  function enhance() { enhanceBanner(); enhanceLaunch(); enhanceSidebar(); enhanceOfficialMarket(); enhanceEmptyStates(); }
   new MutationObserver(enhance).observe(document.documentElement, { childList: true, subtree: true });
   setInterval(enhance, 500);
-  enhance(); loadConfig();
+  enhance(); loadConfig(); loadOfficialMarket(); setInterval(loadOfficialMarket, 30000);
 })();
