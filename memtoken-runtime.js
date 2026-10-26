@@ -1,7 +1,7 @@
 (() => {
   const SUPABASE_URL = 'https://oqibxccbybdnwsbvbivh.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_c0LmGH9O3mIY4N5gIyMn5g_SACN8Kda';
-  const OFFICIAL_CA = 'TBA';
+  const OFFICIAL_CA = 'HZqbPkg931FqWcVoYuxUD8U9CL4d9v2WybiuwUTMpump';
   let config = null;
   let checked = false;
 
@@ -177,7 +177,11 @@
       if (officialCard && !officialCard.querySelector('.official-token-state')) {
         const state = document.createElement('p');
         state.className = 'official-token-state';
-        state.textContent = 'Official token pending · CA will appear here after publication.';
+        if (OFFICIAL_CA === 'TBA') {
+          state.textContent = 'Official token pending · CA will appear here after publication.';
+        } else {
+          state.innerHTML = `Official CA published · <a href="https://pump.fun/coin/${OFFICIAL_CA}" target="_blank" rel="noreferrer">view on Pump.fun</a>`;
+        }
         officialCard.appendChild(state);
       }
       addEmptyRow(content.querySelector('.scrollx table.tbl'), 'No verified Memtoken launches yet. Live records will appear after the first public launch.');

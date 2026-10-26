@@ -96,6 +96,9 @@
   font: 9px/1.5 var(--font-mono);
 }
 
+.official-token-state a { color: var(--up); text-decoration: none; }
+.official-token-state a:hover { text-decoration: underline; }
+
 .empty-state-row td {
   padding: 18px 8px !important;
   color: var(--ink-4) !important;
