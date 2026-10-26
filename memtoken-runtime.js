@@ -1,7 +1,7 @@
 (() => {
   const SUPABASE_URL = 'https://oqibxccbybdnwsbvbivh.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_c0LmGH9O3mIY4N5gIyMn5g_SACN8Kda';
-  const OFFICIAL_CA = 'HZqbPkg931FqWcVoYuxUD8U9CL4d9v2WybiuwUTMpump';
+  const OFFICIAL_CA = 'TBA';
   let config = null;
   let checked = false;
   let officialMarket = null;
@@ -231,7 +231,7 @@
   }
 
   function enhanceOfficialMarket() {
-    if (currentPath() !== '/') return;
+    if (currentPath() !== '/' || OFFICIAL_CA === 'TBA') return;
     const content = document.querySelector('main.content');
     const table = content?.querySelector('.scrollx table.tbl');
     const body = table?.querySelector('tbody');
