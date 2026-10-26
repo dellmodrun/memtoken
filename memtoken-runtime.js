@@ -231,7 +231,7 @@
   }
 
   function enhanceOfficialMarket() {
-    if (currentPath() !== '/' || !officialMarket) return;
+    if (currentPath() !== '/') return;
     const content = document.querySelector('main.content');
     const table = content?.querySelector('.scrollx table.tbl');
     const body = table?.querySelector('tbody');
@@ -251,16 +251,18 @@
       row.className = 'official-market-row';
       body.appendChild(row);
     }
-    const change = Number(officialMarket.priceChange?.h24);
-    const changeText = Number.isFinite(change) ? `${change >= 0 ? '+' : ''}${change.toFixed(2)}% 24h` : 'live market';
+    const change = Number(officialMarket?.priceChange?.h24);
+    const changeText = Number.isFinite(change) ? `${change >= 0 ? '+' : ''}${change.toFixed(2)}% 24h` : 'syncing live data';
+    const value = officialMarket ? usd(officialMarket.marketCap ?? officialMarket.fdv) : 'syncing…';
+    const marketUrl = officialMarket?.url || `https://dexscreener.com/solana/${OFFICIAL_CA}`;
     row.innerHTML = `
       <td><span class="official-market-dot"></span></td>
       <td><a class="official-market-name" href="https://pump.fun/coin/${OFFICIAL_CA}" target="_blank" rel="noreferrer">Memtoken Coin <small>[MEMTOKEN]</small></a></td>
-      <td class="official-market-value">${usd(officialMarket.marketCap ?? officialMarket.fdv)}</td>
+      <td class="official-market-value">${value}</td>
       <td class="${change >= 0 ? 'official-market-up' : 'official-market-down'}">${changeText}</td>
       <td>official CA</td>
       <td>${hasPrograms() ? 'published' : 'pending'}</td>
-      <td><a class="official-market-link" href="${officialMarket.url || `https://dexscreener.com/solana/${OFFICIAL_CA}`}" target="_blank" rel="noreferrer">live on Pump.fun ↗</a></td>`;
+      <td><a class="official-market-link" href="${marketUrl}" target="_blank" rel="noreferrer">live on Pump.fun ↗</a></td>`;
 
     const count = content.querySelector('h2.t-heading + .t-mono .slot');
     if (count) count.textContent = '1';
@@ -270,9 +272,11 @@
 
     const officialCard = content.querySelector('.board-top > div:last-child');
     const slots = officialCard?.querySelectorAll('.slot');
-    if (slots?.[1]) slots[1].textContent = usd(officialMarket.marketCap ?? officialMarket.fdv);
+    if (slots?.[1]) slots[1].textContent = value;
     const details = officialCard?.querySelector('.t-mono.ink-3');
-    if (details) details.textContent = `price ${usd(officialMarket.priceUsd)}   volume 24h ${usd(officialMarket.volume?.h24)}   market live`;
+    if (details) details.textContent = officialMarket
+      ? `price ${usd(officialMarket.priceUsd)}   volume 24h ${usd(officialMarket.volume?.h24)}   market live`
+      : 'price syncing   volume syncing   market live';
   }
 
   function enhance() { enhanceBanner(); enhanceLaunch(); enhanceSidebar(); enhanceOfficialMarket(); enhanceEmptyStates(); }
