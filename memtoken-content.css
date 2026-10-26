@@ -90,6 +90,24 @@
 .ca-banner-address:disabled { cursor: default; }
 .ca-banner-address:not(:disabled):hover { opacity: .72; }
 
+.official-token-state {
+  margin: 10px 0 0;
+  color: var(--ink-4);
+  font: 9px/1.5 var(--font-mono);
+}
+
+.empty-state-row td {
+  padding: 18px 8px !important;
+  color: var(--ink-4) !important;
+  text-align: left;
+  font: 10px/1.5 var(--font-mono) !important;
+}
+
+.pending-value {
+  color: var(--ink-4);
+  font-style: italic;
+}
+
 @media (max-width: 620px) {
   .ca-banner-address {
     gap: 4px;

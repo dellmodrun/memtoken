@@ -16,7 +16,7 @@ html,body{background:#050605;color:var(--ink)}
 .frame{background:#050605;border-color:var(--rule-2)}
 .sidebar{background:#050605}
 .wordmark{display:flex!important;align-items:center;gap:9px;font-family:var(--font-sans);font-size:15px;line-height:30px;letter-spacing:-.3px}
-.wordmark:before{content:"";display:block;width:30px;height:30px;border:1px solid var(--rule-2);background:#000 url('/assets/memtoken-transparent.png') center/60px 60px no-repeat}
+.wordmark:before{content:"";display:block;width:30px;height:30px;border:1px solid var(--rule-2);background:#000 url('memtoken-transparent.png') center/60px 60px no-repeat}
 .nav a.active{color:var(--accent)}
 .xbtn{border-color:var(--rule-2)}
 .xbtn:hover{color:#050605;background:var(--accent);border-color:var(--accent)}

@@ -25,6 +25,14 @@
     return Boolean(config?.registry_program && config?.bond_program && config?.relay_signer);
   }
 
+  function currentPath() {
+    let path = location.pathname.replace(/\/$/, '') || '/';
+    if (location.hostname.endsWith('github.io')) {
+      path = path.replace(/^\/memtoken(?=\/|$)/, '') || '/';
+    }
+    return path;
+  }
+
   function enhanceBanner() {
     if (document.querySelector('.ca-banner')) return;
     const banner = document.createElement('aside');
@@ -73,7 +81,7 @@
   }
 
   function enhanceLaunch() {
-    if (location.pathname.replace(/\/$/, '') !== '/launch') return;
+    if (currentPath() !== '/launch') return;
     const content = document.querySelector('main.content');
     const formSection = content?.querySelector('section.lockwrap');
     if (!content || !formSection) return;
@@ -142,7 +150,62 @@
     live.title = hasPrograms() ? 'All Memtoken programs configured' : 'Direct Pump.fun launch is available; Memtoken programs are pending';
   }
 
-  function enhance() { enhanceBanner(); enhanceLaunch(); enhanceSidebar(); }
+  function addEmptyRow(table, message) {
+    const body = table?.querySelector('tbody');
+    if (!body) return;
+    const populated = [...body.children].some((row) => !row.classList.contains('empty-state-row'));
+    if (populated) {
+      body.querySelector('.empty-state-row')?.remove();
+      return;
+    }
+    if (body.querySelector('.empty-state-row')) return;
+    const columns = table.querySelectorAll('thead th').length || 1;
+    const row = document.createElement('tr');
+    row.className = 'empty-state-row';
+    row.innerHTML = `<td colspan="${columns}">${message}</td>`;
+    body.appendChild(row);
+  }
+
+  function enhanceEmptyStates() {
+    if (!checked) return;
+    const content = document.querySelector('main.content');
+    if (!content) return;
+    const path = currentPath();
+
+    if (path === '/') {
+      const officialCard = content.querySelector('.board-top > div:last-child');
+      if (officialCard && !officialCard.querySelector('.official-token-state')) {
+        const state = document.createElement('p');
+        state.className = 'official-token-state';
+        state.textContent = 'Official token pending · CA will appear here after publication.';
+        officialCard.appendChild(state);
+      }
+      addEmptyRow(content.querySelector('.scrollx table.tbl'), 'No verified Memtoken launches yet. Live records will appear after the first public launch.');
+    }
+
+    if (path === '/registry') {
+      const tables = content.querySelectorAll('section table.tbl');
+      addEmptyRow(tables[1], 'No verified provenance records yet.');
+      addEmptyRow(tables[2], 'No source conflicts recorded.');
+    }
+
+    if (path === '/bonds') {
+      const tables = content.querySelectorAll('section table.tbl');
+      addEmptyRow(tables[0], 'No immutable fee policies published yet.');
+      addEmptyRow(tables[1], 'No community routes published yet.');
+      addEmptyRow(tables[2], 'No fee distributions recorded yet.');
+    }
+
+    if (path === '/docs') {
+      const rows = content.querySelectorAll('#programs-and-accounts + p + table tbody tr');
+      rows.forEach((row) => {
+        const value = row.cells[1];
+        if (value && !value.textContent.trim()) value.innerHTML = '<span class="pending-value">pending deployment</span>';
+      });
+    }
+  }
+
+  function enhance() { enhanceBanner(); enhanceLaunch(); enhanceSidebar(); enhanceEmptyStates(); }
   new MutationObserver(enhance).observe(document.documentElement, { childList: true, subtree: true });
   setInterval(enhance, 500);
   enhance(); loadConfig();

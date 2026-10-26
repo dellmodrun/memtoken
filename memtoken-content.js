@@ -33,7 +33,13 @@
   };
 
   let lastPath = '';
-  function normalize(path) { return path.length > 1 ? path.replace(/\/$/, '') : path; }
+  function normalize(path) {
+    let normalized = path.length > 1 ? path.replace(/\/$/, '') : path;
+    if (location.hostname.endsWith('github.io')) {
+      normalized = normalized.replace(/^\/memtoken(?=\/|$)/, '') || '/';
+    }
+    return normalized;
+  }
   function render() {
     const path = normalize(location.pathname);
     const content = document.querySelector('.content');
